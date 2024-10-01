@@ -1,18 +1,19 @@
-name: Add Issue to Project Backlog
+name: Move Issue to Backlog on Label
 
 on:
   issues:
     types: [labeled]
 
 jobs:
-  add_to_project:
+  move_to_backlog:
+    if: contains(github.event.label.name, 'feature')
     runs-on: ubuntu-latest
+
     steps:
-      - name: Add issue to GitHub Project Backlog
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Move issue to Backlog column
         run: |
-          curl -X POST -H "Authorization: bearer ${{ secrets.GITHUB_TOKEN }}" \
-          -H "Content-Type: application/json" \
-          -d '{"query":"mutation { addProjectV2ItemById(input: {projectId: \"10797488\", contentId: \"${{ github.event.issue.node_id }}\"}) { item { id } } }"}' \
-          https://api.github.com/graphql
+          curl -X POST \
+          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.inertia-preview+json" \
+          https://api.github.com/projects/columns/394f8d2b/cards \
+          -d '{"content_id": "${{ github.event.issue.id }}", "content_type": "Issue"}'
