@@ -15,6 +15,6 @@ jobs:
       - uses: alex-page/github-project-automation-plus@v0.8.3
         with:
           project: Test-Project
-          column: Backlog
+          column: In Progress
           repo-token: ${{ secrets.PAT_TOKEN }}
 
