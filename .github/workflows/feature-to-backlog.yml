@@ -1,17 +1,18 @@
-name: Move Feature Issues to Backlog on Label
+name: Add Issue to Project Backlog
 
 on:
   issues:
     types: [labeled]
 
 jobs:
-  move_to_backlog:
+  add_to_project:
     runs-on: ubuntu-latest
-    if: github.event.label.name == 'feature'
     steps:
-      - name: Move issue to backlog
-        uses: actions/add-to-project@1
-        with:
-          project-url: 'https://github.com/users/yoo-gop/projects/1'
-          column-name: 'Backlog'
-          issue-number: ${{ github.event.issue.number }}
+      - name: Move issue to Project Backlog
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -X POST -H "Authorization: bearer ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Content-Type: application/json" \
+          -d '{"query":"mutation { addProjectNextItem(input: {projectId: \"10797488\", contentId: \"${{ github.event.issue.node_id }}\"}) { projectNextItem { id } } }"}' \
+          https://api.github.com/graphql
