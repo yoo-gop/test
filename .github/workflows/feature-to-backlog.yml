@@ -27,6 +27,8 @@ jobs:
           project_id=1
           project_field_id=1
           project_status_value_id=1
+          
+          echo "Processing issue #$issue_number in $owner/$repo"
 
           # Get the issue's current project item ID
           issue_project_item=$(gh api graphql -f query='
