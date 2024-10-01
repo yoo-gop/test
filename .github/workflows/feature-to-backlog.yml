@@ -22,24 +22,22 @@ jobs:
           BACKLOG_COLUMN_ID: "394f8d2b" # Set the column ID for 'Backlog' here
         run: |
           ISSUE_NUMBER=${{ github.event.issue.number }}
+          ISSUE_NODE_ID=$(curl -H "Authorization: bearer $GITHUB_TOKEN" \
+                              -X POST \
+                              -H "Content-Type: application/json" \
+                              -d '{"query":"query { repository(owner: \\"'${{ github.repository_owner }}'\\", name: \\"'${{ github.event.repository.name }}'\\") { issue(number: '$ISSUE_NUMBER') { id } } }"}' \
+                              https://api.github.com/graphql | jq -r .data.repository.issue.id)
+          
           LABEL_NAME=${{ github.event.label.name }}
           
-          # Set the label that triggers the move to 'Backlog'
-          TRIGGER_LABEL="feature"
-
-          if [ "$LABEL_NAME" = "$TRIGGER_LABEL" ]; then
-            ISSUE_NUMBER=${{ github.event.issue.number }}
-          
-            # Get the project cards associated with the issue
-            PROJECT_CARDS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-                                    -H "Accept: application/vnd.github.inertia-preview+json" \
-                                    "https://api.github.com/repos/${{ github.repository }}/issues/$ISSUE_NUMBER/projects")
-  
-            # Output the project cards JSON
-            echo "Project Cards for issue #$ISSUE_NUMBER:"
-            echo "$PROJECT_CARDS"
+          # Prüfen, ob das Label korrekt ist
+          if [ "$LABEL_NAME" == "feature" ]; then
+            # GraphQL Mutation um den Status auf 'Backlog' zu setzen
+            curl -H "Authorization: bearer $GITHUB_TOKEN" \
+                 -X POST \
+                 -H "Content-Type: application/json" \
+                 -d '{"query":"mutation { updateProjectNextItemField(input: { projectId: \\"PVT_kwHOB16rWM4ApMGw\\", itemId: \\"'$ISSUE_NODE_ID'\\", fieldId: \\"PVTSSF_lAHOB16rWM4ApMGwzggoz7Y\\", value: \\"394f8d2b\\" }) { projectNextItem { id } } }"}' \
+                 https://api.github.com/graphql
           else
-            echo "Label does not match trigger label. Skipping."
+            echo "Label does not match the trigger label."
           fi
-
-
