@@ -14,5 +14,5 @@ jobs:
         run: |
           curl -X POST -H "Authorization: bearer ${{ secrets.GITHUB_TOKEN }}" \
           -H "Content-Type: application/json" \
-          -d '{"query":"mutation { addProjectNextItem(input: {projectId: \"10797488\", contentId: \"${{ github.event.issue.node_id }}\"}) { projectNextItem { id } } }"}' \
+          -d '{"query":"mutation { addProjectV2ItemById(input: {projectId: \"10797488\", contentId: \"${{ github.event.issue.node_id }}\"}) { projectNextItem { id } } }"}' \
           https://api.github.com/graphql
