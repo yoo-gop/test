@@ -10,21 +10,12 @@ permissions:
   issues: write
 
 jobs:
-  move_to_backlog:
-    if: github.event.label.name == 'feature'
+  move-assigned-card:
     runs-on: ubuntu-latest
     steps:
-      - name: Move issue to Backlog
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          issue_number=${{ github.event.issue.number }}
-          project_column_id="394f8d2b"
+      - uses: alex-page/github-project-automation-plus@7ffb872c64bd809d23563a130a0a97d01dfa8f43
+        with:
+          project: Test-Project
+          column: Backlog
+          repo-token: ${{ secrets.PAT_TOKEN }}
 
-          # Move the issue to the "Backlog" column
-          gh api \
-            -X POST \
-            -H "Accept: application/vnd.github.v3+json" \
-            /projects/columns/$project_column_id/cards \
-            -F "content_id=${{ github.event.issue.id }}" \
-            -F "content_type=Issue"
