@@ -34,6 +34,11 @@ jobs:
                                   "https://api.github.com/repos/${{ github.repository }}/issues/$ISSUE_NUMBER/projects")
           
             # Check if there are any project cards associated with the issue
+            CARD_ID=$(echo "$PROJECT_CARDS" | jq '.[0].id // empty')
+               
+               
+               # Output the project cards JSON
+               echo "Project Cards for issue #$ISSUE_NUMBER:"
                echo "$PROJECT_CARDS"
 
 #            CARD_ID=$(echo "$PROJECT_CARDS" | jq '.[0].id // empty')
