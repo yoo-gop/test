@@ -5,15 +5,14 @@ on:
     types:
       - labeled
 
-permissions:
-  contents: read
-  issues: write
-
 jobs:
   move-assigned-card:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
     steps:
-      - uses: alex-page/github-project-automation-plus@7ffb872c64bd809d23563a130a0a97d01dfa8f43
+      - uses: alex-page/github-project-automation-plus@v0.8.3
         with:
           project: Test-Project
           column: Backlog
