@@ -25,7 +25,7 @@ jobs:
           LABEL_NAME=${{ github.event.label.name }}
           
           # Set the label that triggers the move to 'Backlog'
-          TRIGGER_LABEL="your-label"
+          TRIGGER_LABEL="feature"
 
           if [ "$LABEL_NAME" = "$TRIGGER_LABEL" ]; then
             # Find the project card for this issue
