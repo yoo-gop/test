@@ -1,47 +1,27 @@
-name: Update Issue Status on Label
+name: Update Status on Feature Label
+
 on:
   issues:
-    types: [labeled]
+    types:
+      - labeled
 
 jobs:
   update_status:
+    if: github.event.label.name == 'feature'
     runs-on: ubuntu-latest
+
     steps:
-      - name: Check if the issue has the "in-progress" label
-        if: contains(
-            github.event.label.name,
-            'status: in-progress'
-          )
-        run: |
-          echo "Issue has the 'in-progress' label, updating status to 'In Progress'."
-          curl -X PATCH \
-            -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }} \
-            -d '{"labels": ["status: in-progress"]}'
+      - name: Check out the repository
+        uses: actions/checkout@v3
 
-      - name: Check if the issue has the "completed" label
-        if: contains(
-              github.event.label.name,
-              'status: completed'
-          )
+      - name: Set issue status to "Backlog"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          FIELD_ID: 'PVTSSF_lAHOB16rWM4ApMGwzggoz7Y'  # Hier die ID des Custom Fields eintragen
         run: |
-          echo "Issue has the 'completed' label, updating status to 'Completed'."
           curl -X PATCH \
-            -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }} \
-            -d '{"labels": ["status: completed"]}'
-
-      - name: Check if the issue has the "blocked" label
-        if: contains(
-          github.event.label.name,
-              'status: blocked'
-              )
-        run: |
-          echo "Issue has the 'blocked' label, updating status to 'Blocked'."
-          curl -X PATCH \
-            -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
-            -H "Accept: application/vnd.github.v3+json" \
-            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }} \
-            -d '{"labels": ["status: blocked"]}'
+            -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/issues/${ISSUE_NUMBER} \
+            -d '{"custom_field": { "id": "'$FIELD_ID'", "value": "Backlog" }}'
