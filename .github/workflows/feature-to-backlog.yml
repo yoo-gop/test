@@ -10,7 +10,7 @@ jobs:
     if: github.event.label.name == 'feature'
     steps:
       - name: Move issue to backlog
-        uses: actions/add-to-project@v1
+        uses: actions/add-to-project@1
         with:
           project-url: 'https://github.com/users/yoo-gop/projects/1'
           column-name: 'Backlog'
