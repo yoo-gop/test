@@ -54,7 +54,7 @@ jobs:
             --arg itemId "$ISSUE_NODE_ID" \
             --arg fieldId "YOUR_STATUS_FIELD_ID" \
             --arg value "YOUR_BACKLOG_OPTION_ID" \
-            '{ query: "mutation { updateProjectNextItemField(input: { projectId: \($projectId), itemId: \($itemId), fieldId: \($fieldId), value: \($value) }) { projectNextItem { id } } }" }' )" \
+            '{ query: "mutation { updateProjectV2ItemFieldValue(input: { projectId: \($projectId), itemId: \($itemId), fieldId: \($fieldId), value: \($value) }) { projectNextItem { id } } }" }' )" \
             https://api.github.com/graphql
           else
             echo "Label does not match the trigger label."
