@@ -1,19 +1,47 @@
-name: Move Issue to Backlog on Label
-
+name: Update Issue Status on Label
 on:
   issues:
     types: [labeled]
 
 jobs:
-  move_to_backlog:
-    if: contains(github.event.label.name, 'feature')
+  update_status:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Move issue to Backlog column
+      - name: Check if the issue has the "in-progress" label
+        if: contains(
+            github.event.label.name,
+            'status: in-progress'
+          )
         run: |
-          curl -X POST \
-          -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-          -H "Accept: application/vnd.github.inertia-preview+json" \
-          https://api.github.com/projects/columns/394f8d2b/cards \
-          -d '{"content_id": "${{ github.event.issue.id }}", "content_type": "Issue"}'
+          echo "Issue has the 'in-progress' label, updating status to 'In Progress'."
+          curl -X PATCH \
+            -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }} \
+            -d '{"labels": ["status: in-progress"]}'
+
+      - name: Check if the issue has the "completed" label
+        if: contains(
+              github.event.label.name,
+              'status: completed'
+          )
+        run: |
+          echo "Issue has the 'completed' label, updating status to 'Completed'."
+          curl -X PATCH \
+            -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }} \
+            -d '{"labels": ["status: completed"]}'
+
+      - name: Check if the issue has the "blocked" label
+        if: contains(
+          github.event.label.name,
+              'status: blocked'
+              )
+        run: |
+          echo "Issue has the 'blocked' label, updating status to 'Blocked'."
+          curl -X PATCH \
+            -H "Authorization: token ${{ secrets.GH_TOKEN }}" \
+            -H "Accept: application/vnd.github.v3+json" \
+            https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.issue.number }} \
+            -d '{"labels": ["status: blocked"]}'
