@@ -18,31 +18,33 @@ jobs:
       - name: Move issue to Backlog
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PROJECT_ID: "1" # Set your GitHub project ID here
-          BACKLOG_COLUMN_ID: "394f8d2b" # Set the column ID for 'Backlog' here
+          PROJECT_ID: "1"  # Set your GitHub project ID here
+          BACKLOG_COLUMN_ID: "394f8d2b"  # Set your Backlog column ID here
         run: |
           ISSUE_NUMBER=${{ github.event.issue.number }}
           LABEL_NAME=${{ github.event.label.name }}
           
-          # Set the label that triggers the move to 'Backlog'
-          TRIGGER_LABEL="feature"
-
+          # Define the label that triggers moving to the Backlog
+          TRIGGER_LABEL="your-label"
+          
           if [ "$LABEL_NAME" = "$TRIGGER_LABEL" ]; then
-            # Find the project card for this issue
-            CARD_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-                          -H "Accept: application/vnd.github.inertia-preview+json" \
-                          "https://api.github.com/repos/${{ github.repository }}/issues/$ISSUE_NUMBER/projects" \
-                          | jq '.[0].id')
-
+            # Get the issue's project cards
+            PROJECT_CARDS=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+                                  -H "Accept: application/vnd.github.inertia-preview+json" \
+                                  "https://api.github.com/repos/${{ github.repository }}/issues/$ISSUE_NUMBER/projects")
+          
+            # Check if there are any project cards associated with the issue
+            CARD_ID=$(echo "$PROJECT_CARDS" | jq '.[0].id // empty')
+          
             if [ -z "$CARD_ID" ]; then
               echo "No project card found for issue #$ISSUE_NUMBER."
               exit 1
             fi
-
-            # Move the card to the Backlog column
+          
+            # Move the project card to the Backlog column
             curl -s -X POST -H "Authorization: token $GITHUB_TOKEN" \
               -H "Accept: application/vnd.github.inertia-preview+json" \
-              -d "{\"column_id\": $BACKLOG_COLUMN_ID}" \
+              -d "{\"position\": \"top\", \"column_id\": $BACKLOG_COLUMN_ID}" \
               "https://api.github.com/projects/columns/cards/$CARD_ID/moves"
           else
             echo "Label does not match trigger label. Skipping."
