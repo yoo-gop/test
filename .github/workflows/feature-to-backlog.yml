@@ -1,32 +1,33 @@
-name: Update Status on Feature Label
+name: Update Project Status on Label
 
 on:
   issues:
-    types:
-      - labeled
+    types: [labeled]
 
 jobs:
-  update_status:
-    if: github.event.label.name == 'feature'
+  update_project_status:
     runs-on: ubuntu-latest
-
-    permissions:
-      issues: write
-      contents: read
-
+    if: github.event.label.name == 'feature'
     steps:
-      - name: Check out the repository
-        uses: actions/checkout@v3
+      - name: Checkout the repository
+        uses: actions/checkout@v2
 
-      - name: Set issue status to "Backlog"
+      - name: Set project card to "Backlog"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE_NUMBER: ${{ github.event.issue.number }}
-          FIELD_ID: 'PVTSSF_lAHOB16rWM4ApMGwzggoz7Y'  # Hier die ID des Custom Fields eintragen
         run: |
-          curl -X PATCH \
-            -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/${{ github.repository }}/issues/${ISSUE_NUMBER} \
-            -d '{"custom_field": { "id": "'$FIELD_ID'", "value": "Backlog" }}'
-          
+          ISSUE_NUMBER=${{ github.event.issue.number }}
+          PROJECT_ID=1
+          COLUMN_ID=394f8d2b
+
+          # Get the project card ID associated with this issue
+          CARD_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.inertia-preview+json" \
+            https://api.github.com/repos/${{ github.repository }}/issues/${ISSUE_NUMBER}/project-cards \
+            | jq '.[0].id')
+
+          # Move the project card to the Backlog column
+          curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
+            -H "Accept: application/vnd.github.inertia-preview+json" \
+            -d "{\"position\":\"top\"}" \
+            https://api.github.com/projects/columns/${COLUMN_ID}/cards/${CARD_ID}
