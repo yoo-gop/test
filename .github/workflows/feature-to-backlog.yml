@@ -1,32 +1,58 @@
-name: Update Project Status on Label
-
-permissions:
-  issues: write
+name: Set project status to Backlog on feature label
 
 on:
   issues:
-    types: [labeled]
+    types:
+      - labeled
+
+permissions:
+  contents: read
+  issues: write
 
 jobs:
-  update_project_status:
-    runs-on: ubuntu-latest
+  set_project_status:
     if: github.event.label.name == 'feature'
+    runs-on: ubuntu-latest
     steps:
-      - name: Checkout the repository
-        uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-      - name: Set project card to "Backlog"
+      - name: Set project status to Backlog
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ISSUE_NUMBER=${{ github.event.issue.number }}
-          PROJECT_ID=1
-          COLUMN_ID=394f8d2b
+          issue_number=${{ github.event.issue.number }}
+          owner=$(echo ${{ github.repository }} | cut -d'/' -f1)
+          repo=$(echo ${{ github.repository }} | cut -d'/' -f2)
+          project_id=1
+          project_field_id=1
+          project_status_value_id=1
 
-          # Get the project cards associated with this issue
-          RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github.inertia-preview+json" \
-            https://api.github.com/repos/${{ github.repository }}/issues/${ISSUE_NUMBER}/project-cards)
-          
-          # Output the raw response to debug the structure
-          echo "API Response: $RESPONSE"
+          # Get the issue's current project item ID
+          issue_project_item=$(gh api graphql -f query='
+          query($owner: String!, $repo: String!, $issue_number: Int!) {
+            repository(owner: $owner, name: $repo) {
+              issue(number: $issue_number) {
+                projectItems(first: 1) {
+                  nodes {
+                    id
+                  }
+                }
+              }
+            }
+          }' -f owner="$owner" -f repo="$repo" -f issue_number="$issue_number" --jq '.data.repository.issue.projectItems.nodes[0].id')
+
+          # Update the project field for the issue to set the status to Backlog
+          gh api graphql -f query='
+          mutation($project_item_id: ID!, $project_field_id: ID!, $status_value_id: ID!) {
+            updateProjectNextItemField(input: {
+              projectId: $project_id,
+              itemId: $project_item_id,
+              fieldId: $project_field_id,
+              value: $status_value_id
+            }) {
+              projectNextItem {
+                id
+              }
+            }
+          }' -f project_item_id="$issue_project_item" -f project_field_id="$project_field_id" -f status_value_id="$project_status_value_id"
