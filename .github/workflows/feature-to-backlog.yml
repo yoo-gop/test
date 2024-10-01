@@ -10,51 +10,21 @@ permissions:
   issues: write
 
 jobs:
-  set_project_status:
+  move_to_backlog:
     if: github.event.label.name == 'feature'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set project status to Backlog
+      - name: Move issue to Backlog
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           issue_number=${{ github.event.issue.number }}
-          owner=$(echo ${{ github.repository }} | cut -d'/' -f1)
-          repo=$(echo ${{ github.repository }} | cut -d'/' -f2)
-          project_id=1
-          project_field_id=1
-          project_status_value_id=1
-          
-          echo "Processing issue #$issue_number in $owner/$repo"
+          project_column_id="394f8d2b"
 
-          # Get the issue's current project item ID
-          issue_project_item=$(gh api graphql -f query='
-          query($owner: String!, $repo: String!, $issue_number: Int!) {
-            repository(owner: $owner, name: $repo) {
-              issue(number: $issue_number) {
-                projectItems(first: 1) {
-                  nodes {
-                    id
-                  }
-                }
-              }
-            }
-          }' -f owner="$owner" -f repo="$repo" -f issue_number="$issue_number" --jq '.data.repository.issue.projectItems.nodes[0].id')
-
-          # Update the project field for the issue to set the status to Backlog
-          gh api graphql -f query='
-          mutation($project_item_id: ID!, $project_field_id: ID!, $status_value_id: ID!) {
-            updateProjectNextItemField(input: {
-              projectId: $project_id,
-              itemId: $project_item_id,
-              fieldId: $project_field_id,
-              value: $status_value_id
-            }) {
-              projectNextItem {
-                id
-              }
-            }
-          }' -f project_item_id="$issue_project_item" -f project_field_id="$project_field_id" -f status_value_id="$project_status_value_id"
+          # Move the issue to the "Backlog" column
+          gh api \
+            -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            /projects/columns/$project_column_id/cards \
+            -F "content_id=${{ github.event.issue.id }}" \
+            -F "content_type=Issue"
