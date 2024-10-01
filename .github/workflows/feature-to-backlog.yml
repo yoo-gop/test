@@ -34,18 +34,19 @@ jobs:
                                   "https://api.github.com/repos/${{ github.repository }}/issues/$ISSUE_NUMBER/projects")
           
             # Check if there are any project cards associated with the issue
-            CARD_ID=$(echo "$PROJECT_CARDS" | jq '.[0].id // empty')
-          
-            if [ -z "$CARD_ID" ]; then
-              echo "No project card found for issue #$ISSUE_NUMBER."
-              exit 1
-            fi
-          
-            # Move the project card to the Backlog column
-            curl -s -X POST -H "Authorization: token $GITHUB_TOKEN" \
-              -H "Accept: application/vnd.github.inertia-preview+json" \
-              -d "{\"position\": \"top\", \"column_id\": $BACKLOG_COLUMN_ID}" \
-              "https://api.github.com/projects/columns/cards/$CARD_ID/moves"
+               echo "$PROJECT_CARDS"
+#            CARD_ID=$(echo "$PROJECT_CARDS" | jq '.[0].id // empty')
+#
+#            if [ -z "$CARD_ID" ]; then
+#              echo "No project card found for issue #$ISSUE_NUMBER."
+#              exit 1
+#            fi
+#
+#            # Move the project card to the Backlog column
+#            curl -s -X POST -H "Authorization: token $GITHUB_TOKEN" \
+#              -H "Accept: application/vnd.github.inertia-preview+json" \
+#              -d "{\"position\": \"top\", \"column_id\": $BACKLOG_COLUMN_ID}" \
+#              "https://api.github.com/projects/columns/cards/$CARD_ID/moves"
           else
             echo "Label does not match trigger label. Skipping."
           fi
