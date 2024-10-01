@@ -20,14 +20,24 @@ jobs:
           PROJECT_ID=1
           COLUMN_ID=394f8d2b
 
-          # Get the project card ID associated with this issue
-          CARD_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+          # Get the project cards associated with this issue
+          RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
             -H "Accept: application/vnd.github.inertia-preview+json" \
-            https://api.github.com/repos/${{ github.repository }}/issues/${ISSUE_NUMBER}/project-cards \
-            | jq '.[0].id')
+            https://api.github.com/repos/${{ github.repository }}/issues/${ISSUE_NUMBER}/project-cards)
 
-          # Move the project card to the Backlog column
-          curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
-            -H "Accept: application/vnd.github.inertia-preview+json" \
-            -d "{\"position\":\"top\"}" \
-            https://api.github.com/projects/columns/${COLUMN_ID}/cards/${CARD_ID}
+          # Check if response is an array and extract the first card id (assuming there is one card)
+          CARD_ID=$(echo "$RESPONSE" | jq -r '.[0].id')
+
+          # Ensure CARD_ID is not null or empty
+          if [ "$CARD_ID" != "null" ] && [ -n "$CARD_ID" ]; then
+            echo "Found project card with ID: $CARD_ID"
+          
+            # Move the project card to the Backlog column
+            curl -X POST -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github.inertia-preview+json" \
+              -d "{\"position\":\"top\"}" \
+              https://api.github.com/projects/columns/${COLUMN_ID}/cards/${CARD_ID}
+          else
+            echo "No project card found for this issue."
+            exit 1
+          fi
