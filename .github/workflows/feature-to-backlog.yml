@@ -1,4 +1,4 @@
-name: Set project status to Backlog on feature label
+name: Move issue to Backlog when label added
 
 on:
   issues:
@@ -6,44 +6,46 @@ on:
       - labeled
 
 jobs:
-  update-project-status:
+  move_to_backlog:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Get fieldId for Status field
-        id: get-field-id
+      - name: Move issue to Backlog
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PROJECT_ID: "1" # Set your GitHub project ID here
+          BACKLOG_COLUMN_ID: "394f8d2b" # Set the column ID for 'Backlog' here
         run: |
-          # GraphQL-Abfrage, um alle Felder des Projekts zu holen
-          RESPONSE=$(curl -s -X POST \
-            -H "Authorization: bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d '{"query":"query { organization(login: \"yoo_gop\") { projectV2(number: 1) { fields
-          (first: 20) { nodes { id name } } } } }"}' \
-            https://api.github.com/graphql)
+          ISSUE_NUMBER=${{ github.event.issue.number }}
+          LABEL_NAME=${{ github.event.label.name }}
+          
+          # Set the label that triggers the move to 'Backlog'
+          TRIGGER_LABEL="your-label"
 
-          # Extrahiere die fieldId für das "Status"-Feld
-          STATUS_FIELD_ID=$(echo "$RESPONSE" | jq -r '.data.organization.projectV2.fields.nodes[] | select(.name == "Status") | .id')
+          if [ "$LABEL_NAME" = "$TRIGGER_LABEL" ]; then
+            # Find the project card for this issue
+            CARD_ID=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
+                          -H "Accept: application/vnd.github.inertia-preview+json" \
+                          "https://api.github.com/repos/${{ github.repository }}/issues/$ISSUE_NUMBER/projects" \
+                          | jq '.[0].id')
 
-          echo "Status Field ID: $STATUS_FIELD_ID"
-          echo "::set-output name=status_field_id::$STATUS_FIELD_ID"
+            if [ -z "$CARD_ID" ]; then
+              echo "No project card found for issue #$ISSUE_NUMBER."
+              exit 1
+            fi
 
-      - name: Set project status based on label
-        run: |
-          # Definiere eine Zuordnung von Labels zu Statusoptionen
-          if [[ "${{ github.event.label.name }}" == "To Do" ]]; then
-            STATUS_OPTION_ID="TODO_STATUS_OPTION_ID"
-          elif [[ "${{ github.event.label.name }}" == "In Progress" ]]; then
-            STATUS_OPTION_ID="IN_PROGRESS_STATUS_OPTION_ID"
-          elif [[ "${{ github.event.label.name }}" == "Done" ]]; then
-            STATUS_OPTION_ID="DONE_STATUS_OPTION_ID"
-
-          # Aktualisiere den Projektstatus mit der dynamisch gefundenen fieldId
-          curl -X POST \
-            -H "Authorization: bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Content-Type: application/json" \
-            -d '{"query":"mutation { updateProjectV2ItemFieldValue(input:{projectId:\"<YOUR_PROJECT_ID>\", itemId:\"${{ github.event.issue.node_id }}\", fieldId:\"${{ steps.get-field-id.outputs.status_field_id }}\", value:{singleSelectOptionId:\"'$STATUS_OPTION_ID'\"}}) { projectV2Item { id } } }"}' \
-            https://api.github.com/graphql
+            # Move the card to the Backlog column
+            curl -s -X POST -H "Authorization: token $GITHUB_TOKEN" \
+              -H "Accept: application/vnd.github.inertia-preview+json" \
+              -d "{\"column_id\": $BACKLOG_COLUMN_ID}" \
+              "https://api.github.com/projects/columns/cards/$CARD_ID/moves"
+          else
+            echo "Label does not match trigger label. Skipping."
+          fi
 
 
