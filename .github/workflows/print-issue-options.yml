@@ -16,7 +16,7 @@ jobs:
           RESPONSE=$(curl -s -X POST \
             -H "Authorization: bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/json" \
-            -d '{"query":"query { user(login: \"yoo_gop\") { projectV2(number: 1) { fields(first: 20) 
+            -d '{"query":"query { user(login: \"yoo-gop\") { projectV2(number: 1) { fields(first: 20) 
           { nodes { ... on ProjectV2SingleSelectField { name options { id name } } } } } } }"}' \
             https://api.github.com/graphql)
 
