@@ -16,11 +16,15 @@ jobs:
           RESPONSE=$(curl -s -X POST \
             -H "Authorization: bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/json" \
-            -d '{"query":"query { user(login: \"yoo-gop\") { projectV2(number: 1) { fields(first: 20) 
-          { nodes { ... on ProjectV2SingleSelectField { name options { id name } } } } } } }"}' \
+            -d '{"query": "query { user(login: \"yoo-gop\") { projectV2(number: 1) { fields(first: 20) { 
+          nodes { ... on ProjectV2SingleSelectField { name options { id name } } } } } } }"}' \
             https://api.github.com/graphql)
 
-          # Ausgabe der Status-Optionen (Label und ID)
-          echo "$RESPONSE"
-#          echo "Status Options (Label und ID):"
-#          echo "$RESPONSE" | jq -r '.data.organization.projectV2.fields.nodes[] | select(.name == "Status") | .options[] | "Label: \(.name), ID: \(.id)"'
+          # Überprüfen, ob die API-Antwort erfolgreich ist
+          if echo "$RESPONSE" | grep -q '"data":'; then
+            echo "Status Options (Label und ID):"
+            echo "$RESPONSE" | jq -r '.data.user.projectV2.fields.nodes[] | select(.name == "Status") | .options[] | "Label: \(.name), ID: \(.id)"'
+          else
+            echo "Fehler: Ungültige API-Antwort."
+            echo "$RESPONSE"
+          fi
