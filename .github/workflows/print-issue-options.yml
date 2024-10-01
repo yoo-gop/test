@@ -1,0 +1,24 @@
+name: Print All Status Options
+
+on:
+  workflow_dispatch:  # Manuell startbarer Workflow
+
+jobs:
+  print-status-options:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Get Status Options
+        run: |
+          # Führe eine GraphQL-Abfrage aus, um die Status-Optionen zu holen
+          RESPONSE=$(curl -s -X POST \
+            -H "Authorization: bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"query":"query { organization(login: \"<YOUR_ORG>\") { projectV2(number: <PROJECT_NUMBER>) { fields(first: 20) { nodes { ... on ProjectV2SingleSelectField { name options { id name } } } } } } }"}' \
+            https://api.github.com/graphql)
+
+          # Ausgabe der Status-Optionen (Label und ID)
+          echo "Status Options (Label und ID):"
+          echo "$RESPONSE" | jq -r '.data.organization.projectV2.fields.nodes[] | select(.name == "Status") | .options[] | "Label: \(.name), ID: \(.id)"'

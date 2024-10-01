@@ -1,9 +1,7 @@
 name: Print Issue on Label Added
 
 on:
-  issues:
-    types:
-      - labeled
+  workflow_dispatch:  # Manuell startbarer Workflow
 
 jobs:
   print-issue:

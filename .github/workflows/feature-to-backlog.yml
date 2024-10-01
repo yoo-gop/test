@@ -6,15 +6,44 @@ on:
       - labeled
 
 jobs:
-  move-assigned-card:
+  update-project-status:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      issues: write
     steps:
-      - uses: alex-page/github-project-automation-plus@v0.8.3
-        with:
-          project: Test-Project
-          column: In Progress
-          repo-token: ${{ secrets.PAT_TOKEN }}
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Get fieldId for Status field
+        id: get-field-id
+        run: |
+          # GraphQL-Abfrage, um alle Felder des Projekts zu holen
+          RESPONSE=$(curl -s -X POST \
+            -H "Authorization: bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"query":"query { organization(login: \"yoo_gop\") { projectV2(number: 1) { fields
+          (first: 20) { nodes { id name } } } } }"}' \
+            https://api.github.com/graphql)
+
+          # Extrahiere die fieldId für das "Status"-Feld
+          STATUS_FIELD_ID=$(echo "$RESPONSE" | jq -r '.data.organization.projectV2.fields.nodes[] | select(.name == "Status") | .id')
+
+          echo "Status Field ID: $STATUS_FIELD_ID"
+          echo "::set-output name=status_field_id::$STATUS_FIELD_ID"
+
+      - name: Set project status based on label
+        run: |
+          # Definiere eine Zuordnung von Labels zu Statusoptionen
+          if [[ "${{ github.event.label.name }}" == "To Do" ]]; then
+            STATUS_OPTION_ID="TODO_STATUS_OPTION_ID"
+          elif [[ "${{ github.event.label.name }}" == "In Progress" ]]; then
+            STATUS_OPTION_ID="IN_PROGRESS_STATUS_OPTION_ID"
+          elif [[ "${{ github.event.label.name }}" == "Done" ]]; then
+            STATUS_OPTION_ID="DONE_STATUS_OPTION_ID"
+
+          # Aktualisiere den Projektstatus mit der dynamisch gefundenen fieldId
+          curl -X POST \
+            -H "Authorization: bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"query":"mutation { updateProjectV2ItemFieldValue(input:{projectId:\"<YOUR_PROJECT_ID>\", itemId:\"${{ github.event.issue.node_id }}\", fieldId:\"${{ steps.get-field-id.outputs.status_field_id }}\", value:{singleSelectOptionId:\"'$STATUS_OPTION_ID'\"}}) { projectV2Item { id } } }"}' \
+            https://api.github.com/graphql
+
 
