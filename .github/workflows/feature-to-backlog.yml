@@ -1,0 +1,17 @@
+name: Move Feature Issues to Backlog on Label
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  move_to_backlog:
+    runs-on: ubuntu-latest
+    if: github.event.label.name == 'feature'
+    steps:
+      - name: Move issue to backlog
+        uses: actions/add-to-project@v1
+        with:
+          project-url: 'https://github.com/users/yoo-gop/projects/1'
+          column-name: 'Backlog'
+          issue-number: ${{ github.event.issue.number }}
