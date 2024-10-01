@@ -17,8 +17,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ISSUE_NUMBER=${{ github.event.issue.number }}
-          PROJECT_ID="1"
-          COLUMN_ID="394f8d2b"
+          PROJECT_ID='1'
+          COLUMN_ID='394f8d2b'
 
           # Get the project cards associated with this issue
           RESPONSE=$(curl -s -H "Authorization: token $GITHUB_TOKEN" \
