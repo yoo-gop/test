@@ -21,5 +21,6 @@ jobs:
             https://api.github.com/graphql)
 
           # Ausgabe der Status-Optionen (Label und ID)
-          echo "Status Options (Label und ID):"
-          echo "$RESPONSE" | jq -r '.data.organization.projectV2.fields.nodes[] | select(.name == "Status") | .options[] | "Label: \(.name), ID: \(.id)"'
+          echo "$RESPONSE"
+#          echo "Status Options (Label und ID):"
+#          echo "$RESPONSE" | jq -r '.data.organization.projectV2.fields.nodes[] | select(.name == "Status") | .options[] | "Label: \(.name), ID: \(.id)"'
