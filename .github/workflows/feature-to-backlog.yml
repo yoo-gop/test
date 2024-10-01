@@ -2,7 +2,6 @@ name: Update Project Status on Label
 
 permissions:
   issues: write
-  projects: write
 
 on:
   issues:
