@@ -22,10 +22,21 @@ jobs:
           BACKLOG_COLUMN_ID: "394f8d2b" # Set the column ID for 'Backlog' here
         run: |
           ISSUE_NUMBER=${{ github.event.issue.number }}
+          REPO_OWNER=${{ github.repository_owner }}
+          REPO_NAME=${{ github.event.repository.name }}
+
+          # Ausgabe zur Überprüfung der Variablen
+          echo "Issue Number: $ISSUE_NUMBER"
+          echo "Repository Owner: $REPO_OWNER"
+          echo "Repository Name: $REPO_NAME"
+
+          # Hole die Issue-Node-ID über GraphQL
+          QUERY='{"query":"query { repository(owner: \"'$REPO_OWNER'\", name: \"'$REPO_NAME'\") { issue(number: '$ISSUE_NUMBER') { id } } }"}'
+
           ISSUE_NODE_ID=$(curl -H "Authorization: bearer $GITHUB_TOKEN" \
                               -X POST \
                               -H "Content-Type: application/json" \
-                              -d '{"query":"query { repository(owner: \\"'${{ github.repository_owner }}'\\", name: \\"'${{ github.event.repository.name }}'\\") { issue(number: '$ISSUE_NUMBER') { id } } }"}' \
+                              -d "$QUERY" \
                               https://api.github.com/graphql | jq -r .data.repository.issue.id)
           
           # Gebe die Issue-Node-ID in der Konsole aus
