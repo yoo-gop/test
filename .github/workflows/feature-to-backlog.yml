@@ -28,6 +28,9 @@ jobs:
                               -d '{"query":"query { repository(owner: \\"'${{ github.repository_owner }}'\\", name: \\"'${{ github.event.repository.name }}'\\") { issue(number: '$ISSUE_NUMBER') { id } } }"}' \
                               https://api.github.com/graphql | jq -r .data.repository.issue.id)
           
+          # Gebe die Issue-Node-ID in der Konsole aus
+          echo "The Issue Node ID is: $ISSUE_NODE_ID"
+          
           LABEL_NAME=${{ github.event.label.name }}
           
           # Prüfen, ob das Label korrekt ist
