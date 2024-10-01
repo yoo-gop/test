@@ -45,13 +45,17 @@ jobs:
           LABEL_NAME=${{ github.event.label.name }}
 
           # Prüfen, ob das Label korrekt ist
-          if [ "$LABEL_NAME" == "feature" ]; then
-            # GraphQL Mutation um den Status auf 'Backlog' zu setzen
-            curl -H "Authorization: bearer $GITHUB_TOKEN" \
-                 -X POST \
-                 -H "Content-Type: application/json" \
-                 -d '{"query":"mutation { updateProjectNextItemField(input: { projectId: \\"PVT_kwHOB16rWM4ApMGw\\", itemId: \\"'$ISSUE_NODE_ID'\\", fieldId: \\"PVTSSF_lAHOB16rWM4ApMGwzggoz7Y\\", value: \\"394f8d2b\\" }) { projectNextItem { id } } }"}' \
-                 https://api.github.com/graphql
+          if [ "$LABEL_NAME" == "your-trigger-label" ]; then
+          # GraphQL Mutation um den Status auf 'Backlog' zu setzen
+          curl -H "Authorization: bearer $GITHUB_TOKEN" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n --arg projectId "YOUR_PROJECT_NODE_ID" \
+            --arg itemId "$ISSUE_NODE_ID" \
+            --arg fieldId "YOUR_STATUS_FIELD_ID" \
+            --arg value "YOUR_BACKLOG_OPTION_ID" \
+            '{ query: "mutation { updateProjectNextItemField(input: { projectId: \($projectId), itemId: \($itemId), fieldId: \($fieldId), value: \($value) }) { projectNextItem { id } } }" }' )" \
+            https://api.github.com/graphql
           else
             echo "Label does not match the trigger label."
           fi
