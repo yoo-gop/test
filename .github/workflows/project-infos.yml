@@ -1,4 +1,4 @@
-name: Test Personal Access Token
+name: Test Personal Access Token and Project Access
 
 on:
   workflow_dispatch:  # Ermöglicht das manuelle Ausführen des Workflows
@@ -11,8 +11,10 @@ jobs:
       # Schritt 1: Repository auschecken
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
 
-      # Schritt 2: Teste den Zugriff auf das GitHub API mit dem PAT
+      # Schritt 2: Teste den Zugriff auf die GitHub API mit dem PAT
       - name: Test PAT Access to GitHub API
         run: |
           # Teste Zugriff mit einer einfachen GraphQL-Anfrage (Viewer Login)
@@ -33,3 +35,19 @@ jobs:
             echo "Error: Unable to access GitHub API with the provided PAT."
             exit 1
           fi
+
+      # Schritt 3: Teste den Zugriff auf das GitHub Project V2
+      - name: Test PAT Access to GitHub Project V2
+        run: |
+          # Füge die Project ID ein
+          PROJECT_ID="PVT_kwHOB16rWM4ApMGw"
+
+          # Teste Zugriff auf das spezifische GitHub Project V2
+          RESPONSE=$(curl -H "Authorization: bearer ${{ secrets.PAT_TOKEN }}" \
+                -X POST \
+                -H "Content-Type: application/json" \
+                -d "{\"query\": \"query { projectV2(id: \\\"$PROJECT_ID\\\") { title } }\"}" \
+                https://api.github.com/graphql)
+
+          # Ausgabe der API-Antwort
+          echo "GraphQL API Response: $RE
