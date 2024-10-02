@@ -34,7 +34,7 @@ jobs:
           LABEL_NAME=${{ github.event.label.name }}
           
           # Prüfen, ob das Label korrekt ist
-          if [ "$LABEL_NAME" == "feature" ]; then
+#          if [ "$LABEL_NAME" == "feature" ]; then
             echo "update field..."
 #            # GraphQL Mutation um den Status auf 'Backlog' zu setzen
 #            curl -H "Authorization: bearer $GITHUB_TOKEN" \
@@ -44,4 +44,4 @@ jobs:
 #                 https://api.github.com/graphql
 #          else
 #            echo "Label does not match the trigger label."
-          fi
+#          fi
