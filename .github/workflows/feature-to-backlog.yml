@@ -87,6 +87,11 @@ jobs:
       # Schritt 4: Aktualisiere den Wert des Single-Select-Feldes auf 'Backlog'
       - name: Update Single-Select Field to 'Backlog'
         run: |
+          echo "Project ID: $PROJECT_ID"
+          echo "Item ID: $ITEM_ID"
+          echo "Field ID: $FIELD_ID"
+          echo "Option ID: $OPTION_ID"
+        
           # Mutation zur Aktualisierung des Single-Select-Feldes
           RESPONSE=$(curl -H "Authorization: bearer ${{ secrets.PAT_TOKEN }}" \
                 -X POST \
