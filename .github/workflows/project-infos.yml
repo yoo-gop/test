@@ -11,8 +11,6 @@ jobs:
       # Schritt 1: Repository auschecken
       - name: Checkout repository
         uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.PAT_TOKEN }}
 
       # Schritt 2: Teste den Zugriff auf die GitHub API mit dem PAT
       - name: Test PAT Access to GitHub API
@@ -39,15 +37,15 @@ jobs:
       # Schritt 3: Teste den Zugriff auf das GitHub Project V2 eines Benutzers
       - name: Test PAT Access to GitHub Project V2
         run: |
-          # Füge die Project ID und den Benutzernamen ein
-          PROJECT_ID="PVT_kwHOB16rWM4ApMGw"
-          USER_NAME="yoo-gop"
+          # Füge die Project Number und den Benutzernamen ein
+          PROJECT_NUMBER="1"  # Ersetze dies durch deine Projekt-Nummer
+          USER_NAME="YOUR_USER_NAME"  # Ersetze dies durch deinen GitHub-Benutzernamen
 
           # Teste Zugriff auf das spezifische GitHub Project V2
           RESPONSE=$(curl -H "Authorization: bearer ${{ secrets.PAT_TOKEN }}" \
                 -X POST \
                 -H "Content-Type: application/json" \
-                -d "{\"query\": \"query { user(login: \\\"$USER_NAME\\\") { projectV2(id: \\\"$PROJECT_ID\\\") { title } } }\"}" \
+                -d "{\"query\": \"query { user(login: \\\"$USER_NAME\\\") { projectV2(number: $PROJECT_NUMBER) { title } } }\"}" \
                 https://api.github.com/graphql)
 
           # Ausgabe der API-Antwort
@@ -58,6 +56,10 @@ jobs:
           if [ "$PROJECT_TITLE" != "null" ]; then
             echo "Success! PAT has access to GitHub Project V2. Project title: $PROJECT_TITLE"
           else
+            echo "Error: Unable to access the specified GitHub Project V2 with the provided PAT."
+            exit 1
+          fi
+
             echo "Error: Unable to access the specified GitHub Project V2 with the provided PAT."
             exit 1
           fi
