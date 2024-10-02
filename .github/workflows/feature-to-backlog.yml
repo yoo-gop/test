@@ -74,8 +74,8 @@ jobs:
           # Ausgabe der API-Antwort
           echo "GraphQL API Response: $RESPONSE"
 
-          # Überprüfen, ob die 'Backlog'-Option existiert und deren ID abgerufen wurde
-          OPTION_ID=$(echo "$RESPONSE" | jq -r ".data.user.projectV2.fields.nodes[] | select(.id == \\\"$FIELD_ID\\\") | .options[] | select(.name == 'Backlog') | .id")
+          # Verwende korrektes jq mit richtigem Escape der Anführungszeichen
+          OPTION_ID=$(echo "$RESPONSE" | jq -r ".data.user.projectV2.fields.nodes[] | select(.id == \"$FIELD_ID\") | .options[] | select(.name == \"Backlog\") | .id")
 
           if [ "$OPTION_ID" != "" ]; then
             echo "Success! Found 'Backlog' option. Option ID: $OPTION_ID"
