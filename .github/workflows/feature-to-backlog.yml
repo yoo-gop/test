@@ -33,7 +33,7 @@ jobs:
 
           ISSUE_NODE_ID=$(echo "$RESPONSE" | jq -r .data.repository.issue.id)
           LABEL_NAME=${{ github.event.label.name }}
-          echo "ISSUE_NODE_ID=$ISSUE_NODE_ID" >> $GITHUB_OUTPUT
+          echo "ISSUE_NODE_ID=$ISSUE_NODE_ID" >> "$GITHUB_ENV"
 
       # Schritt 2: Teste den Zugriff auf die GitHub API mit dem PAT
       - name: Test PAT Access to GitHub API
@@ -89,12 +89,11 @@ jobs:
       - name: Update Single-Select Field to 'Backlog'
         run: |
           PROJECT_ID="PVT_kwHOB16rWM4ApMGw"
-          ITEM_ID="${{ steps.get_issue.outputs.ISSUE_NODE_ID }}"
           FIELD_ID="PVTSSF_lAHOB16rWM4ApMGwzggoz7Y"
           OPTION_ID="394f8d2b"
           
           echo "Project ID: $PROJECT_ID"
-          echo "Item ID: $ITEM_ID"
+          echo "Item ID: $ISSUE_NODE_ID"
           echo "Field ID: $FIELD_ID"
           echo "Option ID: $OPTION_ID"
         
@@ -102,11 +101,11 @@ jobs:
           RESPONSE=$(curl -H "Authorization: bearer ${{ secrets.PAT_TOKEN }}" \
                 -X POST \
                 -H "Content-Type: application/json" \
-                -d "{\"query\": \"mutation { updateProjectV2ItemFieldValue(input: { projectId: \\\"$PROJECT_ID\\\", itemId: \\\"$ITEM_ID\\\", fieldId: \\\"$FIELD_ID\\\", value: { singleSelectOptionId: \\\"$OPTION_ID\\\" } }) { projectV2Item { id } } }\"}" \
+                -d "{\"query\": \"mutation { updateProjectV2ItemFieldValue(input: { projectId: \\\"$PROJECT_ID\\\", itemId: \\\"$ITEM_ID\\\", fieldId: \\\"$ISSUE_NODE_ID\\\", value: { singleSelectOptionId: \\\"$OPTION_ID\\\" } }) { projectV2Item { id } } }\"}" \
                 https://api.github.com/graphql)
 
           # Ausgabe der API-Antwort
-          echo "Query: {\"query\": \"mutation { updateProjectV2ItemFieldValue(input: { projectId: \\\"$PROJECT_ID\\\", itemId: \\\"$ITEM_ID\\\", fieldId: \\\"$FIELD_ID\\\", value: { singleSelectOptionId: \\\"$OPTION_ID\\\" } }) { projectV2Item { id } } }\"}"
+          echo "Query: {\"query\": \"mutation { updateProjectV2ItemFieldValue(input: { projectId: \\\"$PROJECT_ID\\\", itemId: \\\"$ITEM_ID\\\", fieldId: \\\"$ISSUE_NODE_ID\\\", value: { singleSelectOptionId: \\\"$OPTION_ID\\\" } }) { projectV2Item { id } } }\"}"
           echo "GraphQL API Response: $RESPONSE"
 
           UPDATED_ITEM_ID=$(echo "$RESPONSE" | jq -r .data.updateProjectV2ItemFieldValue.projectV2Item.id)
