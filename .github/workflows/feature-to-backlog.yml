@@ -56,31 +56,6 @@ jobs:
             exit 1
           fi
 
-      # Schritt 3: Teste den Zugriff auf das GitHub Project V2 eines Benutzers
-      - name: Test PAT Access to GitHub Project V2
-        run: |
-          # Füge die Project Number und den Benutzernamen ein
-          PROJECT_NUMBER="1"  # Ersetze dies durch deine Projekt-Nummer
-          USER_NAME="YOUR_USER_NAME"  # Ersetze dies durch deinen GitHub-Benutzernamen
-
-          # Teste Zugriff auf das spezifische GitHub Project V2
-          RESPONSE=$(curl -H "Authorization: bearer ${{ secrets.PAT_TOKEN }}" \
-                -X POST \
-                -H "Content-Type: application/json" \
-                -d "{\"query\": \"query { user(login: \\\"$USER_NAME\\\") { projectV2(number: $PROJECT_NUMBER) { title fields(first: 10) { nodes { id name dataType options { id name } } } } } }\"}" \
-                https://api.github.com/graphql)
-
-          # Ausgabe der API-Antwort
-          echo "GraphQL API Response: $RESPONSE"
-
-          # Überprüfen, ob ein Single-Select-Feld existiert und dessen ID und Optionen abgerufen wurden
-          if [ "$FIELD_ID" != "" ] && [ "$OPTION_ID" != "" ]; then
-            echo "Success! Found Single-Select field and option for 'Backlog'. Field ID: $FIELD_ID, Option ID: $BACKLOG_COLUMN_ID"
-          else
-            echo "Error: No Single-Select field or 'Backlog' option found in the specified GitHub Project V2."
-            exit 1
-          fi
-
       # Schritt 4: Aktualisiere den Wert des Single-Select-Feldes auf 'Backlog'
       - name: Update Single-Select Field to 'Backlog'
         run: |
