@@ -48,7 +48,8 @@ jobs:
             -d "{\"query\": \"query { user(login: \\\"$USER_NAME\\\") { projectV2(number: $PROJECT_NUMBER) { items(first: 100) { nodes { id content { ... on Issue { id } } } } } } }\"}" \
             https://api.github.com/graphql)
 
-          PROJECT_ITEM_ID=$(echo "$RESPONSE" | jq -r ".data.node.items.nodes[] | select(.content.id == \"$ISSUE_NODE_ID\") | .id")
+          PROJECT_ITEM_ID=$(echo "$RESPONSE" | jq -r ".data.user.projectV2.items.nodes[] | select(.content.id == 
+          \"$ISSUE_NODE_ID\") | .id")
           echo "ProjectV2 Item ID: $PROJECT_ITEM_ID"
 
           if [ -z "$PROJECT_ITEM_ID" ]; then
