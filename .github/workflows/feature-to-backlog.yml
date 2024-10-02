@@ -95,6 +95,7 @@ jobs:
                 https://api.github.com/graphql)
 
           # Ausgabe der API-Antwort
+          echo "Query: {\"query\": \"mutation { updateProjectV2ItemFieldValue(input: { projectId: \\\"$PROJECT_ID\\\", itemId: \\\"$ITEM_ID\\\", fieldId: \\\"$FIELD_ID\\\", value: { singleSelectOptionId: \\\"$OPTION_ID\\\" } }) { projectV2Item { id } } }\"}"
           echo "GraphQL API Response: $RESPONSE"
 
           UPDATED_ITEM_ID=$(echo "$RESPONSE" | jq -r .data.updateProjectV2ItemFieldValue.projectV2Item.id)
