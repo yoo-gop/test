@@ -18,44 +18,30 @@ jobs:
       - name: Move issue to Backlog
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PROJECT_ID: "1" # Set your GitHub project ID here
+          PROJECT_ID: "PVT_kwHOB16rWM4ApMGw" # Set your GitHub project ID here
           BACKLOG_COLUMN_ID: "394f8d2b" # Set the column ID for 'Backlog' here
         run: |
           ISSUE_NUMBER=${{ github.event.issue.number }}
-          REPO_OWNER=${{ github.repository_owner }}
-          REPO_NAME=${{ github.event.repository.name }}
-
-          # Ausgabe zur Überprüfung der Variablen
-          echo "Issue Number: $ISSUE_NUMBER"
-          echo "Repository Owner: $REPO_OWNER"
-          echo "Repository Name: $REPO_NAME"
-
-          # Hole die Issue-Node-ID über GraphQL
-          QUERY='{"query":"query { repository(owner: \"'$REPO_OWNER'\", name: \"'$REPO_NAME'\") { issue(number: '$ISSUE_NUMBER') { id } } }"}'
-
           ISSUE_NODE_ID=$(curl -H "Authorization: bearer $GITHUB_TOKEN" \
                               -X POST \
                               -H "Content-Type: application/json" \
-                              -d "$QUERY" \
+                              -d '{"query":"query { repository(owner: \\"'${{ github.repository_owner }}'\\", name: \\"'${{ github.event.repository.name }}'\\") { issue(number: '$ISSUE_NUMBER') { id } } }"}' \
                               https://api.github.com/graphql | jq -r .data.repository.issue.id)
           
           # Gebe die Issue-Node-ID in der Konsole aus
           echo "The Issue Node ID is: $ISSUE_NODE_ID"
-
+          
           LABEL_NAME=${{ github.event.label.name }}
-
+          
           # Prüfen, ob das Label korrekt ist
           if [ "$LABEL_NAME" == "feature" ]; then
-            # GraphQL Mutation um den Status auf 'Backlog' zu setzen
-            curl -H "Authorization: bearer $GITHUB_TOKEN" \
-              -X POST \
-              -H "Content-Type: application/json" \
-              -d "$(jq -n --arg projectId "$YOUR_PROJECT_NODE_ID" \
-              --arg itemId "$ISSUE_NODE_ID" \
-              --arg fieldId "$YOUR_STATUS_FIELD_ID" \
-              --arg value "$YOUR_BACKLOG_OPTION_ID" \
-              '{ query: "mutation { updateProjectV2ItemFieldValue(input: { projectId: $projectId, itemId: $itemId, fieldId: $fieldId, value: { singleSelectOptionId: $value } }) { projectV2Item { id } } }" }' )" \
-              https://api.github.com/graphql
+               echo "update field $ISSUE_NODE_ID"
+#            # GraphQL Mutation um den Status auf 'Backlog' zu setzen
+#            curl -H "Authorization: bearer $GITHUB_TOKEN" \
+#                 -X POST \
+#                 -H "Content-Type: application/json" \
+#                 -d '{"query":"mutation { updateProjectNextItemField(input: { projectId: \\"PVT_kwHOB16rWM4ApMGw\\", itemId: \\"'$ISSUE_NODE_ID'\\", fieldId: \\"PVTSSF_lAHOB16rWM4ApMGwzggoz7Y\\", value: \\"394f8d2b\\" }) { projectNextItem { id } } }"}' \
+#                 https://api.github.com/graphql
           else
             echo "Label does not match the trigger label."
           fi
