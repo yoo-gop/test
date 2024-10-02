@@ -37,13 +37,12 @@ jobs:
             echo "Update status of Issue #'$ISSUE_NUMBER' (ID: $ISSUE_NODE_ID)"
           
             # GraphQL Mutation um den Status auf 'Backlog' zu setzen
-            RESPONSE=$(curl -H "Authorization: bearer $GITHUB_TOKEN" \
+            curl -H "Authorization: bearer $GITHUB_TOKEN" \
                 -X POST \
                 -H "Content-Type: application/json" \
                 -d '{"query":"query { repository(owner: \"'${{ github.repository_owner }}'\", name: \"'${{ github.event.repository.name }}'\") { issue(number: '$ISSUE_NUMBER') { id } } }"}' \
-                https://api.github.com/graphql)
+                https://api.github.com/graphql
             
-            echo "$RESPONSE"
             echo "{\"query\":\"mutation { updateProjectV2ItemFieldValue(input: { projectId: \\\"$PROJECT_ID\\\", itemId: \\\"$ISSUE_NODE_ID\\\", fieldId: \\\"$FIELD_ID\\\", value: { singleSelectOptionId: \\\"$BACKLOG_COLUMN_ID\\\" } }) { projectNextItem { id } } }\"}"
             
           else
