@@ -88,10 +88,10 @@ jobs:
       # Schritt 4: Aktualisiere den Wert des Single-Select-Feldes auf 'Backlog'
       - name: Update Single-Select Field to 'Backlog'
         run: |
-          $PROJECT_ID="PVT_kwHOB16rWM4ApMGw"
-          $ITEM_ID="${{ steps.get_issue.outputs.ISSUE_NODE_ID }}"
-          $FIELD_ID="PVTSSF_lAHOB16rWM4ApMGwzggoz7Y"
-          $OPTION_ID="394f8d2b"
+          PROJECT_ID="PVT_kwHOB16rWM4ApMGw"
+          ITEM_ID="${{ steps.get_issue.outputs.ISSUE_NODE_ID }}"
+          FIELD_ID="PVTSSF_lAHOB16rWM4ApMGwzggoz7Y"
+          OPTION_ID="394f8d2b"
           
           echo "Project ID: $PROJECT_ID"
           echo "Item ID: $ITEM_ID"
