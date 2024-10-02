@@ -70,6 +70,8 @@ jobs:
                 -H "Content-Type: application/json" \
                 -d "{\"query\": \"query { user(login: \\\"$USER_NAME\\\") { projectV2(number: $PROJECT_NUMBER) { fields(first: 10) { nodes { id name dataType options { id name } } } } } }\"}" \
                 https://api.github.com/graphql)
+                
+          echo "GraphQL API Response: $RESPONSE"
 
       # Schritt 4: Aktualisiere den Wert des Single-Select-Feldes auf 'Backlog'
       - name: Update Single-Select Field to 'Backlog'
