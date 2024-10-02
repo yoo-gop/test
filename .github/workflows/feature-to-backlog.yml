@@ -33,6 +33,8 @@ jobs:
 
           ISSUE_NODE_ID=$(echo "$RESPONSE" | jq -r .data.repository.issue.id)
           LABEL_NAME=${{ github.event.label.name }}
+          
+          echo "Got the issue id of $ISSUE_NODE_ID"
           echo "ISSUE_NODE_ID=$ISSUE_NODE_ID" >> "$GITHUB_ENV"
 
       # Schritt 2: Teste den Zugriff auf die GitHub API mit dem PAT
