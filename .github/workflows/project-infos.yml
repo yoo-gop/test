@@ -11,6 +11,8 @@ jobs:
       # Schritt 1: Repository auschecken
       - name: Checkout repository
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
 
       # Schritt 2: Teste den Zugriff auf die GitHub API mit dem PAT
       - name: Test PAT Access to GitHub API
@@ -39,7 +41,7 @@ jobs:
         run: |
           # Füge die Project Number und den Benutzernamen ein
           PROJECT_NUMBER="1"  # Ersetze dies durch deine Projekt-Nummer
-          USER_NAME="YOUR_USER_NAME"  # Ersetze dies durch deinen GitHub-Benutzernamen
+          USER_NAME="yoo-gop"  # Ersetze dies durch deinen GitHub-Benutzernamen
 
           # Teste Zugriff auf das spezifische GitHub Project V2
           RESPONSE=$(curl -H "Authorization: bearer ${{ secrets.PAT_TOKEN }}" \
