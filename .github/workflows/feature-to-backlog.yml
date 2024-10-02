@@ -29,6 +29,7 @@ jobs:
                               https://api.github.com/graphql | jq -r .data.repository.issue.id)
           
           # Gebe die Issue-Node-ID in der Konsole aus
+          echo "The Issue Number is: $ISSUE_NUMBER"
           echo "The Issue Node ID is: $ISSUE_NODE_ID"
           
           
@@ -36,7 +37,7 @@ jobs:
           
           # Prüfen, ob das Label korrekt ist
           if [ "$LABEL_NAME" == "feature" ]; then
-            echo "update field"
+            echo "update field $ISSUE_NUMBER"
 #            # GraphQL Mutation um den Status auf 'Backlog' zu setzen
 #            curl -H "Authorization: bearer $GITHUB_TOKEN" \
 #                 -X POST \
