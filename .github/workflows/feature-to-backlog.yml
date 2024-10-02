@@ -17,13 +17,13 @@ jobs:
 
       - name: Move issue to Backlog
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
           PROJECT_ID: "PVT_kwHOB16rWM4ApMGw"
           FIELD_ID: "PVTSSF_lAHOB16rWM4ApMGwzggoz7Y"
           BACKLOG_COLUMN_ID: "394f8d2b"
         run: |
           ISSUE_NUMBER=${{ github.event.issue.number }}
-          RESPONSE=$(curl -H "Authorization: bearer $GITHUB_TOKEN" \
+          RESPONSE=$(curl -H "Authorization: bearer $PAT_TOKEN" \
                 -X POST \
                 -H "Content-Type: application/json" \
                 -d '{"query":"query { repository(owner: \"'${{ github.repository_owner }}'\", name: \"'${{ github.event.repository.name }}'\") { issue(number: '$ISSUE_NUMBER') { id } } }"}' \
@@ -34,10 +34,11 @@ jobs:
           
           # Prüfen, ob das Label korrekt ist
           if [ "$LABEL_NAME" == "feature" ]; then
+            echo "Using Personal Access Token $PAT_TOKEN"
             echo "Update status of Issue #'$ISSUE_NUMBER' (ID: $ISSUE_NODE_ID)"
           
             # GraphQL Mutation um den Status auf 'Backlog' zu setzen
-            curl -H "Authorization: bearer $GITHUB_TOKEN" \
+            curl -H "Authorization: bearer $PAT_TOKEN" \
              -X POST \
              -H "Content-Type: application/json" \
              -d "{\"query\":\"mutation { updateProjectV2ItemFieldValue(input: { projectId: \\\"$PROJECT_ID\\\", itemId: \\\"$ISSUE_NODE_ID\\\", fieldId: \\\"$FIELD_ID\\\", value: { singleSelectOptionId: \\\"$BACKLOG_COLUMN_ID\\\" } }) { projectV2Item { id } } }\"}" \
