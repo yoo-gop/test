@@ -35,7 +35,7 @@ jobs:
           
           # Prüfen, ob das Label korrekt ist
           if [ "$LABEL_NAME" == "feature" ]; then
-            echo "update field $ISSUE_NODE_ID"
+            echo "update field..."
 #            # GraphQL Mutation um den Status auf 'Backlog' zu setzen
 #            curl -H "Authorization: bearer $GITHUB_TOKEN" \
 #                 -X POST \
