@@ -28,23 +28,18 @@ jobs:
                 -d '{"query":"query { repository(owner: \"'${{ github.repository_owner }}'\", name: \"'${{ github.event.repository.name }}'\") { issue(number: '$ISSUE_NUMBER') { id } } }"}' \
                 https://api.github.com/graphql)
 
-          echo "GraphQL API Response: $RESPONSE"
+#          echo "GraphQL API Response: $RESPONSE"
           ISSUE_NODE_ID=$(echo "$RESPONSE" | jq -r .data.repository.issue.id)
-          
-          echo "The Issue Node ID is: $ISSUE_NODE_ID"
-          
-          # Gebe die Issue-Node-ID in der Konsole aus
-          echo "Repository Owner: ${{ github.repository_owner }}"
-          echo "Repository Name: ${{ github.event.repository.name }}"
+
           echo "The Issue Number is: $ISSUE_NUMBER"
           echo "The Issue Node ID is: $ISSUE_NODE_ID"
-          
-          
+
+
           LABEL_NAME=${{ github.event.label.name }}
           
           # Prüfen, ob das Label korrekt ist
           if [ "$LABEL_NAME" == "feature" ]; then
-            echo "update field $ISSUE_NUMBER"
+            echo "Update status of Issue \#'$ISSUE_NUMBER' (ID: $ISSUE_NODE_ID)"
           else
             echo "Label does not match the trigger label."
           fi
