@@ -50,4 +50,13 @@ jobs:
                 https://api.github.com/graphql)
 
           # Ausgabe der API-Antwort
-          echo "GraphQL API Response: $RE
+          echo "GraphQL API Response: $RESPONSE"
+
+          # Überprüfen, ob der Projektname erfolgreich abgerufen wurde
+          PROJECT_TITLE=$(echo "$RESPONSE" | jq -r .data.projectV2.title)
+          if [ "$PROJECT_TITLE" != "null" ]; then
+            echo "Success! PAT has access to GitHub Project V2. Project title: $PROJECT_TITLE"
+          else
+            echo "Error: Unable to access the specified GitHub Project V2 with the provided PAT."
+            exit 1
+          fi
