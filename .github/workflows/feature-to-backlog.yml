@@ -40,13 +40,14 @@ jobs:
       - name: Get ProjectV2 Issue ID
         run: |
           PROJECT_ID="PVT_kwHOB16rWM4ApMGw"
+          USER_NAME="yoo-gop"
           ISSUE_NODE_ID="${{ steps.get_issue.outputs.ISSUE_NODE_ID }}"
 
-          RESPONSE=$(curl -H "Authorization: bearer $PAT_TOKEN" \
-                -X POST \
-                -H "Content-Type: application/json" \
-                -d "{\"query\": \"query { node(id: \\\"$PROJECT_ID\\\") { ... on ProjectV2 { items(first: 100) { nodes { id content { ... on Issue { id } } } } } } }\"}" \
-                https://api.github.com/graphql)
+          RESPONSE=$(curl -H "Authorization: bearer ${{ secrets.PAT_TOKEN }}" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -d "{\"query\": \"query { user(login: \\\"$USER_NAME\\\") { projectV2(number: $PROJECT_NUMBER) { items(first: 100) { nodes { id content { ... on Issue { id } } } } } } }\"}" \
+            https://api.github.com/graphql)
 
           PROJECT_ITEM_ID=$(echo "$RESPONSE" | jq -r ".data.node.items.nodes[] | select(.content.id == \"$ISSUE_NODE_ID\") | .id")
           echo "ProjectV2 Item ID: $PROJECT_ITEM_ID"
