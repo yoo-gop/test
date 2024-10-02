@@ -14,6 +14,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          repository: yoo-gop/test
+          token: ${{ secrets.MY_TOKEN }}
 
       - name: Move issue to Backlog
         env:
@@ -43,7 +46,7 @@ jobs:
              -H "Content-Type: application/json" \
              -d "{\"query\":\"mutation { updateProjectV2ItemFieldValue(input: { projectId: \\\"$PROJECT_ID\\\", itemId: \\\"$ISSUE_NODE_ID\\\", fieldId: \\\"$FIELD_ID\\\", value: { singleSelectOptionId: \\\"$BACKLOG_COLUMN_ID\\\" } }) { projectV2Item { id } } }\"}" \
              https://api.github.com/graphql
-            
+          
           else
             echo "Label does not match the trigger label."
           fi
