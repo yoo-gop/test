@@ -40,8 +40,8 @@ jobs:
             curl -H "Authorization: bearer $GITHUB_TOKEN" \
                 -X POST \
                 -H "Content-Type: application/json" \
-                -d '{"query":"query { repository(owner: \"'${{ github.repository_owner }}'\", name: \"'${{ github.event.repository.name }}'\") { issue(number: '$ISSUE_NUMBER') { id } } }"}' \
-                https://api.github.com/graphql
+                -d ''{\"query\":\"mutation { updateProjectV2ItemFieldValue(input: { projectId: \\\"$PROJECT_ID\\\", itemId: \\\"$ISSUE_NODE_ID\\\", fieldId: \\\"$FIELD_ID\\\", value: { singleSelectOptionId: \\\"$BACKLOG_COLUMN_ID\\\" } }) { projectNextItem { id } } }\"}' \
+                 https://api.github.com/graphql
             
           else
             echo "Label does not match the trigger label."
