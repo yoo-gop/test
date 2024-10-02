@@ -18,9 +18,9 @@ jobs:
       - name: Move issue to Backlog
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PROJECT_ID: "PVT_kwHOB16rWM4ApMGw" # Set your GitHub project ID here
+          PROJECT_ID: "PVT_kwHOB16rWM4ApMGw"
           FIELD_ID: "PVTSSF_lAHOB16rWM4ApMGwzggoz7Y"
-          BACKLOG_COLUMN_ID: "394f8d2b" # Set the column ID for 'Backlog' here
+          BACKLOG_COLUMN_ID: "394f8d2b"
         run: |
           ISSUE_NUMBER=${{ github.event.issue.number }}
           RESPONSE=$(curl -H "Authorization: bearer $GITHUB_TOKEN" \
