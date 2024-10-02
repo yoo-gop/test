@@ -30,15 +30,12 @@ jobs:
 
           ISSUE_NODE_ID=$(echo "$RESPONSE" | jq -r .data.repository.issue.id)
 
-          echo "The Issue Number is: $ISSUE_NUMBER"
-          echo "The Issue Node ID is: $ISSUE_NODE_ID"
-
 
           LABEL_NAME=${{ github.event.label.name }}
           
           # Prüfen, ob das Label korrekt ist
           if [ "$LABEL_NAME" == "feature" ]; then
-            echo "Update status of Issue \#'$ISSUE_NUMBER' (ID: $ISSUE_NODE_ID)"
+            echo "Update status of Issue #'$ISSUE_NUMBER' (ID: $ISSUE_NODE_ID)"
           else
             echo "Label does not match the trigger label."
           fi
