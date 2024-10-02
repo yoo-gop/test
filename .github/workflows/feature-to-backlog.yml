@@ -32,8 +32,8 @@ jobs:
                 https://api.github.com/graphql)
 
           ISSUE_NODE_ID=$(echo "$RESPONSE" | jq -r .data.repository.issue.id)
-          echo "::set-output name=ISSUE_ID::$ISSUE_NODE_ID"
           LABEL_NAME=${{ github.event.label.name }}
+          echo "ISSUE_NODE_ID=$ISSUE_NODE_ID" >> $GITHUB_OUTPUT
 
       # Schritt 2: Teste den Zugriff auf die GitHub API mit dem PAT
       - name: Test PAT Access to GitHub API
