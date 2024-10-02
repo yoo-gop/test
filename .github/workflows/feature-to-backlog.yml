@@ -40,7 +40,7 @@ jobs:
       - name: Get ProjectV2 Issue ID
         run: |
           PROJECT_ID="PVT_kwHOB16rWM4ApMGw"
-          $PROJECT_NUMBER="1"
+          PROJECT_NUMBER="1"
           USER_NAME="yoo-gop"
           ISSUE_NODE_ID="${{ steps.get_issue.outputs.ISSUE_NODE_ID }}"
 
