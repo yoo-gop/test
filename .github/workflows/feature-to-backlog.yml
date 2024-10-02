@@ -39,7 +39,7 @@ jobs:
             # GraphQL Mutation um den Status auf 'Backlog' zu setzen
             
 
-            echo "{\"query\":\"mutation { updateProjectNextItemField(input: { projectId: \\\"$PROJECT_ID\\\", itemId: \\\"$ISSUE_NODE_ID\\\", fieldId: \\\"$FIELD_ID\\\", value: \\\"$BACKLOG_COLUMN_ID\\\" }) { projectNextItem { id } } }\"}"
+            echo "{\"query\":\"mutation { updateProjectV2ItemFieldValue(input: { projectId: \\\"$PROJECT_ID\\\", itemId: \\\"$ISSUE_NODE_ID\\\", fieldId: \\\"$FIELD_ID\\\", value: { singleSelectOptionId: \\\"$BACKLOG_COLUMN_ID\\\" } }) { projectNextItem { id } } }\"}"
             
           else
             echo "Label does not match the trigger label."
