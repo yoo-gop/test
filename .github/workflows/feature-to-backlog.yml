@@ -22,7 +22,7 @@ jobs:
           PAT_TOKEN: ${{ secrets.PAT_TOKEN }}
           PROJECT_ID: "PVT_kwHOB16rWM4ApMGw"
           FIELD_ID: "PVTSSF_lAHOB16rWM4ApMGwzggoz7Y"
-          BACKLOG_COLUMN_ID: "394f8d2b"
+          OPTION_ID: "394f8d2b"
         run: |
           ISSUE_NUMBER=${{ github.event.issue.number }}
           RESPONSE=$(curl -H "Authorization: bearer $PAT_TOKEN" \
