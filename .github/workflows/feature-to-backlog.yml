@@ -103,16 +103,16 @@ jobs:
           RESPONSE=$(curl -H "Authorization: bearer ${{ secrets.PAT_TOKEN }}" \
                 -X POST \
                 -H "Content-Type: application/json" \
-                -d "{\"query\": \"mutation { updateProjectV2ItemFieldValue(input: { projectId: \\\"$PROJECT_ID\\\", itemId: \\\"$ITEM_ID\\\", fieldId: \\\"$ISSUE_NODE_ID\\\", value: { singleSelectOptionId: \\\"$OPTION_ID\\\" } }) { projectV2Item { id } } }\"}" \
+                -d "{\"query\": \"mutation { updateProjectV2ItemFieldValue(input: { projectId: \\\"$PROJECT_ID\\\", itemId: \\\"$ISSUE_NODE_ID\\\", fieldId: \\\"$FIELD_ID\\\", value: { singleSelectOptionId: \\\"$OPTION_ID\\\" } }) { projectV2Item { id } } }\"}" \
                 https://api.github.com/graphql)
 
           # Ausgabe der API-Antwort
-          echo "Query: {\"query\": \"mutation { updateProjectV2ItemFieldValue(input: { projectId: \\\"$PROJECT_ID\\\", itemId: \\\"$ITEM_ID\\\", fieldId: \\\"$ISSUE_NODE_ID\\\", value: { singleSelectOptionId: \\\"$OPTION_ID\\\" } }) { projectV2Item { id } } }\"}"
+          echo "Query: {\"query\": \"mutation { updateProjectV2ItemFieldValue(input: { projectId: \\\"$PROJECT_ID\\\", itemId: \\\"$ISSUE_NODE_ID\\\", fieldId: \\\"$FIELD_ID\\\", value: { singleSelectOptionId: \\\"$OPTION_ID\\\" } }) { projectV2Item { id } } }\"}"
           echo "GraphQL API Response: $RESPONSE"
 
           UPDATED_ITEM_ID=$(echo "$RESPONSE" | jq -r .data.updateProjectV2ItemFieldValue.projectV2Item.id)
           if [ "$UPDATED_ITEM_ID" != "null" ]; then
-            echo "Success! Updated Single-Select field for item $ITEM_ID to 'Backlog'."
+            echo "Success! Updated Single-Select field for item $ISSUE_NODE_ID to 'Backlog'."
           else
             echo "Error: Unable to update the Single-Select field for the specified item."
             exit 1
