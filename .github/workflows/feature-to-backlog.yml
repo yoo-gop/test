@@ -56,6 +56,21 @@ jobs:
             exit 1
           fi
 
+      # Schritt 3: Verwende die Field-ID, um die Optionen des Single-Select-Feldes abzurufen
+      - name: Get Single-Select Field Options
+        run: |
+          # Füge die Project Number, den Benutzernamen und die Field-ID ein
+          PROJECT_NUMBER="1"  # Ersetze dies durch deine Projekt-Nummer
+          USER_NAME="yoo-gop"  # Ersetze dies durch deinen GitHub-Benutzernamen
+          FIELD_ID="PVTSSF_lAHOB16rWM4ApMGwzggoz7Y"  # Manuell eingegebene Field-ID des Single-Select-Feldes
+
+          # Teste Zugriff auf die Optionen des spezifischen GitHub Project V2 Single-Select-Feldes
+          RESPONSE=$(curl -H "Authorization: bearer ${{ secrets.PAT_TOKEN }}" \
+                -X POST \
+                -H "Content-Type: application/json" \
+                -d "{\"query\": \"query { user(login: \\\"$USER_NAME\\\") { projectV2(number: $PROJECT_NUMBER) { fields(first: 10) { nodes { id name dataType options { id name } } } } } }\"}" \
+                https://api.github.com/graphql)
+
       # Schritt 4: Aktualisiere den Wert des Single-Select-Feldes auf 'Backlog'
       - name: Update Single-Select Field to 'Backlog'
         run: |
